@@ -1,13 +1,41 @@
 import type { DocumentPickerResponse } from '@react-native-documents/picker';
-import { apiRequest } from './api';
+import { API_BASE_URL, apiRequest } from './api';
+
+export type SubmissionStatus =
+  | 'New'
+  | 'In Progress'
+  | 'Awaiting Documents'
+  | 'Complete'
+  | 'Cancelled';
+
+export const SUBMISSION_STATUSES: SubmissionStatus[] = [
+  'New',
+  'In Progress',
+  'Awaiting Documents',
+  'Complete',
+  'Cancelled',
+];
+
+export interface SubmissionDocument {
+  id: number | string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url?: string;
+  createdAt?: string;
+}
 
 export interface ServiceRequest {
-  id: string;
+  id: number | string;
   fullName: string;
   phoneNumber: string;
   service: string;
-  status: string;
+  status: SubmissionStatus | string;
   submittedAt: string;
+}
+
+export interface ServiceRequestDetail extends ServiceRequest {
+  documents: SubmissionDocument[];
 }
 
 export interface NewServiceRequest {
@@ -19,13 +47,7 @@ export interface NewServiceRequest {
 
 export interface CreateRequestResponse {
   submission: ServiceRequest;
-  documents: Array<{
-    id: string;
-    originalName: string;
-    mimeType: string;
-    size: number;
-    downloadUrl?: string;
-  }>;
+  documents: SubmissionDocument[];
 }
 
 export async function listRequests(token: string): Promise<ServiceRequest[]> {
@@ -34,6 +56,48 @@ export async function listRequests(token: string): Promise<ServiceRequest[]> {
     { token },
   );
   return result.submissions;
+}
+
+export async function getRequest(
+  token: string,
+  submissionId: number | string,
+): Promise<ServiceRequestDetail> {
+  const result = await apiRequest<{ submission: ServiceRequestDetail }>(
+    `/api/v1/submissions/${submissionId}`,
+    { token },
+  );
+  return {
+    ...result.submission,
+    documents: result.submission.documents ?? [],
+  };
+}
+
+export async function updateRequestStatus(
+  token: string,
+  submissionId: number | string,
+  status: SubmissionStatus,
+): Promise<{ id: number | string; status: SubmissionStatus }> {
+  const result = await apiRequest<{
+    submission: { id: number | string; status: SubmissionStatus };
+  }>(`/api/v1/submissions/${submissionId}/status`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify({ status }),
+  });
+
+  return result.submission;
+}
+
+export function getDocumentDownloadUrl(document: SubmissionDocument): string | null {
+  if (document.url) {
+    return document.url;
+  }
+
+  if (!document.id) {
+    return null;
+  }
+
+  return `${API_BASE_URL}/api/v1/documents/${document.id}/download`;
 }
 
 export async function createRequest(
