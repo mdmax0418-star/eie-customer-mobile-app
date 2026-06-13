@@ -26,6 +26,7 @@ const SERVICES = [
   { label: 'Replacement Plates/Stickers', value: 'replacement' },
   { label: 'VIN Verification', value: 'vin' },
   { label: 'Out-of-State Transfer', value: 'out-of-state' },
+  { label: 'Fleet or Commercial Registration Help', value: 'fleet-commercial' },
 ];
 
 interface NewRequestScreenProps {
@@ -66,7 +67,8 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
       if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
         return;
       }
-      setError(err instanceof Error ? err.message : 'Unable to select documents.');
+      console.error('Document picker failed:', err);
+      setError('We could not attach your documents just now. Please try again, or submit the request and EIE will follow up if anything is missing.');
     }
   };
 
@@ -100,13 +102,12 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
       });
       resetForm();
       Alert.alert(
-        'Request submitted',
-        `Your submission ID is ${response.submission.id}. Documents uploaded: ${
-          response.documents?.length ?? 0
-        }`,
+        'Request received',
+        `Your submission ID is #${response.submission.id}. Our team will review your request and contact you if anything else is needed.`,
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to submit request.');
+      console.error('Request submission failed:', err);
+      setError('We could not submit your request just now. Please try again, or contact EIE if the issue continues.');
     } finally {
       setIsSubmitting(false);
     }
@@ -123,7 +124,7 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
         <View style={styles.header}>
           <View>
             <Text style={styles.eyebrow}>EIE Auto Registration</Text>
-            <Text style={styles.title}>New Service Request</Text>
+            <Text style={styles.title}>Start a DMV-Free Request</Text>
           </View>
           <Pressable accessibilityRole="button" onPress={handleLogout}>
             <Text style={styles.logoutText}>Log out</Text>
@@ -131,12 +132,12 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
         </View>
 
         <Text style={styles.description}>
-          Submit your request and attach any registration documents, IDs, or supporting files.
+          Tell us what you need, upload what you have, and we'll guide the registration process from here.
         </Text>
 
         <View style={styles.card}>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Choose a Service</Text>
+            <Text style={styles.label}>Service needed</Text>
             <Pressable
               accessibilityRole="button"
               onPress={() => setIsServicePickerVisible(true)}
@@ -148,14 +149,14 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
                   !selectedServiceLabel && styles.placeholderText,
                 ]}
               >
-                {selectedServiceLabel || 'Select your service'}
+                {selectedServiceLabel || 'Choose the vehicle service you need'}
               </Text>
               <Text style={styles.chevron}>⌄</Text>
             </Pressable>
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Upload Documents</Text>
+            <Text style={styles.label}>Documents</Text>
             <Pressable
               accessibilityRole="button"
               disabled={documents.length >= 5}
@@ -166,9 +167,9 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.uploadTitle}>Select PDF or image files</Text>
+              <Text style={styles.uploadTitle}>Upload documents or photos</Text>
               <Text style={styles.uploadHelp}>
-                Optional · Up to 5 files · PDF, JPEG, PNG, WEBP, HEIC/HEIF
+                Upload registration documents, ID, title paperwork, or supporting photos. Not sure? Send what you have — we'll follow up if anything is missing.
               </Text>
             </Pressable>
             {documents.map(document => (
@@ -187,7 +188,7 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>Full name</Text>
             <TextInput
               autoCapitalize="words"
               editable={!isSubmitting}
@@ -201,12 +202,12 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.label}>Best phone number for updates</Text>
             <TextInput
               editable={!isSubmitting}
               keyboardType="phone-pad"
               onChangeText={setPhoneNumber}
-              placeholder="Enter your phone number"
+              placeholder="Best phone number for updates"
               placeholderTextColor="#9ca3af"
               style={styles.input}
               textContentType="telephoneNumber"
@@ -227,9 +228,12 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
             ]}
           >
             {isSubmitting ? (
-              <ActivityIndicator color="#ffffff" />
+              <View style={styles.submittingContent}>
+                <ActivityIndicator color="#ffffff" />
+                <Text style={styles.submitButtonText}>Securely submitting your request…</Text>
+              </View>
             ) : (
-              <Text style={styles.submitButtonText}>Submit Request</Text>
+              <Text style={styles.submitButtonText}>Send My Request</Text>
             )}
           </Pressable>
         </View>
@@ -246,7 +250,7 @@ export function NewRequestScreen({ onLogout }: NewRequestScreenProps) {
           style={styles.modalBackdrop}
         >
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Choose a Service</Text>
+            <Text style={styles.modalTitle}>Service needed</Text>
             {SERVICES.map(item => (
               <Pressable
                 accessibilityRole="button"
@@ -436,6 +440,11 @@ const styles = StyleSheet.create({
   },
   submitButtonDisabled: {
     backgroundColor: '#93c5fd',
+  },
+  submittingContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
   },
   submitButtonText: {
     color: '#ffffff',

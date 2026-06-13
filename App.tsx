@@ -61,17 +61,12 @@ function App() {
         {isLoadingAuth ? (
           <View style={styles.loader}>
             <ActivityIndicator color="#1d4ed8" size="large" />
+            <Text style={styles.loaderText}>Getting your request ready…</Text>
           </View>
         ) : authToken && isAdmin ? (
           <AdminDashboardScreen onLogout={handleLogout} token={authToken} />
         ) : authToken ? (
-          <View style={styles.protectedMessage}>
-            <Text style={styles.protectedTitle}>Admin access required</Text>
-            <Text style={styles.protectedBody}>
-              This dashboard is only available to authenticated admin users.
-            </Text>
-            <NewRequestScreen onLogout={handleLogout} />
-          </View>
+          <NewRequestScreen onLogout={handleLogout} />
         ) : (
           <LoginScreen onLoginSuccess={handleLoginSuccess} />
         )}
@@ -88,24 +83,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f7f8fa',
     flex: 1,
+    gap: 12,
     justifyContent: 'center',
   },
-  protectedMessage: {
-    flex: 1,
-  },
-  protectedTitle: {
-    color: '#111827',
-    fontSize: 20,
-    fontWeight: '800',
-    paddingHorizontal: 24,
-    paddingTop: 24,
-  },
-  protectedBody: {
+  loaderText: {
     color: '#4b5563',
-    fontSize: 14,
-    lineHeight: 20,
-    paddingHorizontal: 24,
-    paddingTop: 6,
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
 
