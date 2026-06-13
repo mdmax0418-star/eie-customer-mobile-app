@@ -36,7 +36,8 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
       const auth = await login({ username: username.trim(), password });
       onLoginSuccess(auth);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to sign in.');
+      console.error('Login failed:', err);
+      setError('We could not sign you in just now. Please check your details and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -52,9 +53,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           <View style={styles.brandMark}>
             <Text style={styles.brandMarkText}>EIE</Text>
           </View>
-          <Text style={styles.title}>Welcome back</Text>
+          <Text style={styles.title}>Your time back starts here</Text>
           <Text style={styles.subtitle}>
-            Sign in to the EIE Customer Portal to submit service requests.
+            Sign in to manage your vehicle service requests without the DMV runaround.
           </Text>
 
           <View style={styles.formGroup}>

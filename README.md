@@ -1,4 +1,27 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# EIE Customer Mobile App
+
+React Native customer app for EIE Auto Registration service requests.
+
+## Brand implementation notes
+
+EIE should feel like the antidote to the DMV: fast, simple, expert-led, and reassuring. Customer-facing copy should sell time and peace of mind, not just form submission.
+
+Core messaging:
+
+- **EIE AUTO REGISTRATION: Your Time Back.**
+- **The DMV, Without the DMV.**
+- **Professional Vehicle Services for Busy Professionals.**
+- **Focus on your business. We'll handle the fleet.**
+
+UI and content guidelines:
+
+- Lead with benefit-driven headlines and plain next steps.
+- Use professional blue CTAs, white card surfaces, soft neutral backgrounds, generous spacing, and rounded controls.
+- Put reassurance near high-friction moments like document upload.
+- Use calm, customer-safe errors and log technical details instead of showing them directly.
+- Authenticated customers should land directly in the request flow; admin-only language belongs only in admin paths.
+
+This project was bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
 
